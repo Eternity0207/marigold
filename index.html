@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Marigold</title>
+  <meta name="description" content="Build a private ofrenda for someone you miss, from their own messages. Open AI models run in your browser; nothing is uploaded, and it never puts words in their mouth." />
+  <meta name="theme-color" content="#fbf4e9" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#140d1f" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <script type="module" src="./src/main.js"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="./" aria-label="Marigold home">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><use href="#marigold" /></svg>
+      <span>Marigold</span>
+    </a>
+    <div class="top-right">
+      <button id="statusPill" class="pill" type="button" hidden><span class="dot"></span><span id="statusText"></span></button>
+      <button id="settingsBtn" class="icon-btn" type="button" aria-label="Models and storage" title="Models and storage">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Home -->
+    <section id="home" class="home" hidden>
+      <div class="hero">
+        <p class="eyebrow">For Día de los Muertos, and every day after</p>
+        <h1>An ofrenda made of their own words.</h1>
+        <p class="lede">Bring the messages, letters and cards someone left you. Marigold finds the things they always said, the foods and songs they loved, and builds them an altar. Open AI models do the reading inside this browser tab, so their words never leave your device.</p>
+        <div class="cta">
+          <button id="newBtn" class="btn primary" type="button">Make an ofrenda</button>
+          <button id="sampleBtn" class="btn" type="button">See Abuela Rosa's</button>
+          <label class="btn ghost" for="importFile">Open a saved ofrenda</label>
+          <input id="importFile" type="file" accept=".json,application/json" hidden />
+        </div>
+        <p class="promise"><strong>A promise:</strong> Marigold will never write as them. Every word on the altar that is theirs, they really said. The AI only helps you find those words, and helps <em>you</em> write about them.</p>
+      </div>
+
+      <div id="savedWrap" hidden>
+        <h2 class="section-title">Your ofrendas</h2>
+        <div id="saved" class="saved"></div>
+      </div>
+
+      <ol class="features">
+        <li><span class="num">1</span><h3>Gather</h3><p>A WhatsApp chat export, a typed-up letter, the card they mailed you. Plus the memories only you have.</p></li>
+        <li><span class="num">2</span><h3>Their altar</h3><p>Their sayings, what they called you, and the offerings they'd want: the pan de muerto, the song, the town they came from.</p></li>
+        <li><span class="num">3</span><h3>Visit</h3><p>Light a candle and read something they wrote you, on this day in another year. Ask what they said about anything.</p></li>
+      </ol>
+    </section>
+
+    <!-- New ofrenda -->
+    <section id="setup" class="setup" hidden>
+      <button class="link back" type="button" data-go="home">← Back</button>
+      <h1 id="setupTitle">Who are you remembering?</h1>
+      <form id="setupForm" class="form" autocomplete="off">
+        <label class="field"><span>Their name</span><input name="name" required placeholder="Rosa Delgado" /></label>
+        <label class="field"><span>What you called them <small>(optional)</small></span><input name="short" placeholder="Abuela Rosa" /></label>
+        <label class="field"><span>Who they were to you <small>(optional)</small></span><input name="relation" placeholder="my grandmother" /></label>
+        <div class="field-row">
+          <label class="field"><span>Born <small>(year)</small></span><input name="born" inputmode="numeric" maxlength="4" placeholder="1941" /></label>
+          <label class="field"><span>Died <small>(year)</small></span><input name="died" inputmode="numeric" maxlength="4" placeholder="2025" /></label>
+        </div>
+        <label class="field"><span>Your name <small>(so Marigold can tell your messages from theirs)</small></span><input name="you" placeholder="Leo" /></label>
+        <label class="field"><span>A photo <small>(optional, stays on this device)</small></span><input name="photo" type="file" accept="image/*" /></label>
+        <div class="row"><button class="btn primary" type="submit" id="setupSubmit">Next: gather their words</button></div>
+      </form>
+    </section>
+
+    <!-- One ofrenda -->
+    <section id="ofrenda" class="ofrenda" hidden>
+      <div class="of-head">
+        <button class="link back" type="button" data-go="home">← All ofrendas</button>
+        <div id="buildBar" class="build" hidden aria-live="polite">
+          <div class="build-text"><strong id="buildTitle"></strong><span id="buildDetail"></span></div>
+          <div class="bar"><div id="buildFill"></div></div>
+          <button id="buildStop" class="btn small" type="button" hidden>Stop</button>
+        </div>
+      </div>
+
+      <div id="altar" class="altar" aria-label="The ofrenda"></div>
+
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="visit" aria-selected="true" type="button">Visit</button>
+        <button role="tab" data-tab="remember" aria-selected="false" type="button">Remembrance</button>
+        <button role="tab" data-tab="arrange" aria-selected="false" type="button">Arrange</button>
+        <button role="tab" data-tab="gather" aria-selected="false" type="button">Gather <span id="gatherBadge" class="badge" hidden></span></button>
+        <button role="tab" data-tab="keep" aria-selected="false" type="button">Keep</button>
+      </nav>
+
+      <div id="tab-visit" role="tabpanel">
+        <div class="visit">
+          <div class="candle-card">
+            <button id="lightBtn" class="candle-btn" type="button" aria-describedby="visitNote">
+              <span class="candle big" aria-hidden="true"><span class="flame"></span></span>
+              <span id="lightLabel">Light a candle</span>
+            </button>
+            <figure id="visitQuote" class="visit-quote" hidden>
+              <p class="visit-when" id="visitWhen"></p>
+              <p class="visit-reply" id="visitReply" hidden></p>
+              <blockquote id="visitText"></blockquote>
+              <figcaption><button id="visitAgain" class="link" type="button">Another</button></figcaption>
+            </figure>
+            <p id="visitNote" class="fine">Shows something they really wrote you, from this day in another year when there is one.</p>
+          </div>
+
+          <div class="listen">
+            <h2 class="h-small" id="listenTitle">What did they say about…</h2>
+            <form id="listenForm" class="search" autocomplete="off">
+              <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="listenQ" type="search" enterkeyhint="search" aria-label="Search their messages" placeholder="when I was sad, her recipes, the beach…" />
+            </form>
+            <div id="listenEx" class="examples"></div>
+            <p id="listenMeta" class="meta"></p>
+            <ol id="listenResults" class="quotes"></ol>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-remember" role="tabpanel" hidden>
+        <div class="remember">
+          <div>
+            <h2 class="h-small">In your words</h2>
+            <p class="fine">A remembrance to read aloud, print beside the altar, or keep. Gemma can write a first draft from your memories and the altar, in your voice. Make it yours.</p>
+          </div>
+          <textarea id="remembrance" rows="12" placeholder="Write about them here…"></textarea>
+          <div class="row">
+            <button id="draftBtn" class="btn primary small" type="button">Draft it with Gemma</button>
+            <button id="draftStop" class="btn small" type="button" hidden>Stop</button>
+            <span id="draftInfo" class="fine"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-arrange" role="tabpanel" hidden>
+        <div class="arrange">
+          <section>
+            <h2 class="h-small">Offerings</h2>
+            <p class="fine" id="offeringsInfo"></p>
+            <details id="thrownBox" class="thrown" hidden>
+              <summary id="thrownSummary"></summary>
+              <ul id="thrownList"></ul>
+            </details>
+            <div class="row"><button id="findOfferings" class="btn primary small" type="button">Find offerings with Gemma</button></div>
+            <div id="offeringList" class="arrange-list"></div>
+            <form id="addOffering" class="add-row">
+              <select name="cat" aria-label="Kind of offering"></select>
+              <input name="name" required placeholder="Add one yourself: her flan, the old radio…" aria-label="Offering" />
+              <button class="btn small" type="submit">Add</button>
+            </form>
+          </section>
+          <section>
+            <h2 class="h-small">Sayings</h2>
+            <p class="fine">Phrases they wrote again and again, counted, not generated. Untick any that don't sound like them.</p>
+            <div id="sayingList" class="arrange-list"></div>
+          </section>
+          <section>
+            <h2 class="h-small">Details</h2>
+            <div class="row">
+              <button id="editDetails" class="btn small" type="button">Edit name, years and photo</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div id="tab-gather" role="tabpanel" hidden>
+        <div class="gather">
+          <div class="gather-add">
+            <label class="tile" for="chatFile">
+              <span class="tile-icon" aria-hidden="true">💬</span>
+              <strong>Add a chat export</strong>
+              <small>WhatsApp: open the chat, ⋮ or their name → Export chat → Without media. Choose the .txt file.</small>
+            </label>
+            <input id="chatFile" type="file" accept=".txt,text/plain" hidden />
+            <button class="tile" type="button" id="addLetter">
+              <span class="tile-icon" aria-hidden="true">✉️</span>
+              <strong>Paste a letter or note</strong>
+              <small>Cards, emails, a recipe in their handwriting typed out. Everything you paste counts as their words.</small>
+            </button>
+            <button class="tile" type="button" id="addMemory">
+              <span class="tile-icon" aria-hidden="true">🕯️</span>
+              <strong>Write a memory of your own</strong>
+              <small>Things you remember that never made it into a message. Used only for your remembrance.</small>
+            </button>
+          </div>
+          <h2 class="h-small">What's on the altar so far</h2>
+          <ul id="sources" class="sources"></ul>
+        </div>
+      </div>
+
+      <div id="tab-keep" role="tabpanel" hidden>
+        <div class="keep">
+          <div class="keep-item"><div><strong>Print it</strong><p class="fine">The altar and your remembrance on one page, for the real ofrenda.</p></div><button id="printBtn" class="btn small" type="button">Print</button></div>
+          <div class="keep-item"><div><strong>Save a copy</strong><p class="fine">One file with everything. Open it next year, or on another device. Keep it somewhere safe; it holds their messages.</p></div><button id="exportBtn" class="btn small" type="button">Download .json</button></div>
+          <div class="keep-item"><div><strong>As text</strong><p class="fine">Their sayings, offerings and your remembrance as a Markdown file.</p></div><button id="mdBtn" class="btn small" type="button">Download .md</button></div>
+          <div class="keep-item danger"><div><strong>Take it down</strong><p class="fine">Delete this ofrenda from this device. Save a copy first if you want it back.</p></div><button id="deleteBtn" class="btn small warn" type="button">Delete</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Runs on <strong>gte-small</strong> and <strong>Gemma 3</strong>, open models, on your device. No account, no server, no analytics.</p>
+    <p><a href="https://github.com/Eternity0207/marigold" rel="noopener">Source on GitHub</a></p>
+  </footer>
+
+  <!-- Messages behind an offering or a saying -->
+  <div id="drawer" class="drawer" hidden role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer-scrim" data-close></div>
+    <div class="drawer-panel">
+      <button class="icon-btn close" type="button" data-close aria-label="Close">✕</button>
+      <p class="eyebrow" id="drawerKind"></p>
+      <h2 id="drawerTitle"></h2>
+      <p class="fine" id="drawerMeta"></p>
+      <ol id="drawerList" class="quotes"></ol>
+    </div>
+  </div>
+
+  <!-- Pick who is who in a chat export -->
+  <dialog id="senderDlg" class="dlg" aria-labelledby="senderTitle">
+    <form method="dialog" class="dlg-inner">
+      <h2 id="senderTitle">Which one is <span id="senderName"></span>?</h2>
+      <p class="fine">Only their messages go on the altar. Yours are kept only to tell their sayings apart from yours.</p>
+      <div id="senderOpts" class="radio-list"></div>
+      <div class="row end"><button class="btn small" value="cancel">Cancel</button><button class="btn primary small" value="ok" id="senderOk">Add their messages</button></div>
+    </form>
+  </dialog>
+
+  <!-- Paste text -->
+  <dialog id="textDlg" class="dlg" aria-labelledby="textTitle">
+    <form method="dialog" class="dlg-inner">
+      <h2 id="textTitle"></h2>
+      <label class="field" id="textTitleField"><span>What is it? <small>(optional)</small></span><input id="textName" placeholder="Birthday card, 2024" /></label>
+      <label class="field" id="textDateField"><span>When <small>(optional)</small></span><input id="textDate" type="date" /></label>
+      <label class="field"><span id="textLabel">Text</span><textarea id="textBody" rows="9" required></textarea></label>
+      <div class="row end"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn primary small" value="ok">Add</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="settings" class="dlg" aria-labelledby="settingsTitle">
+    <form method="dialog" class="dlg-inner">
+      <div class="dlg-head"><h2 id="settingsTitle">Models and storage</h2><button class="icon-btn" value="close" aria-label="Close">✕</button></div>
+      <ul class="models">
+        <li><div><strong>Meaning search</strong><small>gte-small, int8 · ~34 MB</small></div><span id="coreState" class="state">Not loaded</span></li>
+        <li><div><strong>Offerings and drafts</strong><small id="llmInfo">Gemma 3 1B on your GPU · ~790 MB</small></div><span id="llmState" class="state">Not loaded</span></li>
+      </ul>
+      <div class="bar" id="llmBarWrap" hidden><div id="llmBar"></div></div>
+      <p class="fine">Models download once and then load from this device, so Marigold works with Wi‑Fi off. Your ofrendas are stored in this browser only.</p>
+      <div class="row"><button id="clearModels" class="btn small" type="button">Delete downloaded models</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden><span id="toastText"></span><button id="toastAction" class="link" type="button" hidden></button></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="marigold" viewBox="0 0 48 48">
+        <g fill="var(--marigold)">
+          <circle cx="24" cy="24" r="21" /></g>
+        <g fill="var(--marigold-deep)">
+          <path d="M24 6c3 4 7 4 9 1-1 4 2 7 6 7-3 2-3 6 0 9-4 0-6 3-5 7-3-2-7-1-8 3-1-4-5-5-8-3 1-4-1-7-5-7 3-3 3-7 0-9 4 0 7-3 6-7 2 3 6 3 9-1Z" transform="rotate(18 24 24)"/></g>
+        <g fill="var(--marigold)"><circle cx="24" cy="24" r="10" /></g>
+        <g fill="var(--marigold-deep)"><path d="M24 15c1.6 2.4 4 2.4 5 .6-.4 2.4 1.2 4 3.4 4-1.8 1.2-1.8 3.4 0 4.8-2.2 0-3.6 1.8-3 3.8-1.6-1-3.8-.6-4.6 1.6-.8-2.2-3-2.6-4.6-1.6.6-2-.8-3.8-3-3.8 1.8-1.4 1.8-3.6 0-4.8 2.2 0 3.8-1.6 3.4-4 1 1.8 3.4 1.8 5-.6Z"/></g>
+        <circle cx="24" cy="24" r="3.2" fill="var(--candle)" />
+      </symbol>
+    </defs>
+  </svg>
+</body>
+</html>

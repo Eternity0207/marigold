@@ -1,0 +1,10 @@
+{
+  "name": "Marigold",
+  "short_name": "Marigold",
+  "description": "A private ofrenda built from their own words, by open AI models that run on your device.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#140d1f",
+  "theme_color": "#ff9f1c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
