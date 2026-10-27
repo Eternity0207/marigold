@@ -6,6 +6,12 @@ services:
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
+    # Serve the app at the bare domain; without this "/" can 404 while
+    # "/index.html" works, and the service worker can't precache "./".
+    routes:
+      - type: rewrite
+        source: /
+        destination: /index.html
     headers:
       - path: /*
         name: Cross-Origin-Opener-Policy
